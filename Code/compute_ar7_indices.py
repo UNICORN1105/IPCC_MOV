@@ -466,6 +466,7 @@ def build_model_member_dataset(member_files, varname, args):
         raise RuntimeError(f"No members for {varname}")
     out = xr.concat(arrays, dim="member", coords="minimal", compat="override", join="outer")
     out = out.sortby("time")
+    out = out.load()
     log(f"  Built {varname} array dims: {dict(out.sizes)}")
     return out
 
@@ -949,6 +950,7 @@ def safe_to_netcdf(ds, path, direct_write=True):
     log(f"Saving file: {path}")
     if path.exists():
         path.unlink()
+    ds = ds.compute() 
     ds.to_netcdf(path, engine="netcdf4", encoding=encoding)
     log(f"Wrote {path}")
 
